@@ -1,7 +1,7 @@
 const id = 1;
-let planet = {};
-let characters = [];
-let films = [];
+//let planet = {};
+//let characters = [];
+//let films = [];
 
 let planetNameH1;
 let climateSpan;
@@ -16,49 +16,44 @@ addEventListener("DOMContentLoaded", () => {
   climateSpan = document.querySelector("span#climate");
   populationSpan = document.querySelector("span#population");
   diameterSpan = document.querySelector("span#diameter");
-
+  charactersUl = document.querySelector("#characters>ul");
+  filmsUl = document.querySelector("#films>ul");
   const sp = new URLSearchParams(window.location.search);
   const id = sp.get("id");
   getPlanet(id);
 });
 
 async function getPlanet(id) {
-  let url = `https://swapi2.azurewebsites.net/api/planets/${id}`;
+  let planet = {};
 
   try {
-    const fetchedPlanet = await fetch(url).then((res) => res.json());
-    //console.log(fetchedPlanets)
-    planet = fetchedPlanet;
+    planet = await fetchPlanet(id);
+    planet.characters = await fetchCharactersFromPlanet(id);
+    planet.films = await fetchFilmsFromPlanet(id);
   } catch (ex) {
-    console.error("Error reading planets.", ex.message);
+    console.error(`Error reading character ${id} data.`, ex.message);
   }
-  console.log("The planet is: ", planet);
-  console.log(planet?.diameter);
+  console.log(planet);
   renderPlanet(planet);
 }
 
-async function getCharactersFromPlanet() {
-  let url = `https://swapi2.azurewebsites.net/api/planets/${id}/characters`;
+async function fetchPlanet(id) {
+  let url = `https://swapi2.azurewebsites.net/api/planets/${id}`;
 
-  try {
-    const fetchedCharacters = await fetch(url).then((res) => res.json());
-    characters.push(...fetchedCharacters);
-  } catch (ex) {
-    console.error("Error reading characters from planet.", ex.message);
-  }
-  console.log("The characters from that planet are: ", characters);
+  return await fetch(url).then((res) => res.json());
 }
 
-async function getFilmsFromPlanet() {
-  let url = `https://swapi2.azurewebsites.net/api/planets/${id}/films`;
+async function fetchCharactersFromPlanet(id) {
+  let url = `https://swapi2.azurewebsites.net/api/planets/${id}/characters`;
+  const characters = await fetch(url).then((res) => res.json());
+  return characters;
+}
 
-  try {
-    const fetchedFilms = await fetch(url).then((res) => res.json());
-    films.push(...fetchedFilms);
-  } catch (ex) {
-    console.error("Error reading films from planet.", ex.message);
-  }
-  console.log("The films from that planet are: ", films);
+async function fetchFilmsFromPlanet(id) {
+  let url = `https://swapi2.azurewebsites.net/api/planets/${id}/films`;
+  const films = await fetch(url).then((res) => res.json());
+
+  return films;
 }
 
 const renderPlanet = (planet) => {
@@ -67,6 +62,17 @@ const renderPlanet = (planet) => {
   climateSpan.textContent = planet?.climate;
   diameterSpan.textContent = planet?.diameter;
   populationSpan.textContent = planet?.population;
+
+  const characterList = planet?.characters?.map(
+    (character) =>
+      `<li><a href="/film.html?id=${character.id}">${character.name}</li>`
+  );
+  charactersUl.innerHTML = characterList.join("");
+
+  const filmsList = planet?.films?.map(
+    (film) => `<li><a href="/film.html?id=${film.id}">${film.title}</li>`
+  );
+  filmsUl.innerHTML = filmsList.join("");
 };
 
 //getPlanet();
