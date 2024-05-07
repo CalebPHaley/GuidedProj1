@@ -4,6 +4,7 @@ let filmNameH1;
 let producerSpan;
 let directorSpan;
 let releaseSpan;
+let detailSpan;
 let filmsDiv;
 let filmDiv;
 
@@ -13,6 +14,7 @@ addEventListener("DOMContentLoaded", () => {
   producerSpan = document.querySelector("span#producer");
   directorSpan = document.querySelector("span#director");
   releaseSpan = document.querySelector("span#release");
+  detailSpan = document.querySelector("#detail");
   charactersUl = document.querySelector("#characters>ul");
   planetsUl = document.querySelector("#planets>ul");
   const sp = new URLSearchParams(window.location.search);
@@ -38,6 +40,7 @@ async function fetchfilm(id) {
   let url = `https://swapi2.azurewebsites.net/api/films/${id}`;
 
   result = await fetch(url).then((res) => res.json());
+  //localStorage.setItem(result.id, JSON.stringify(id));
   console.log(result);
   return result;
 }
@@ -57,10 +60,11 @@ async function fetchPlanetsFromfilm(id) {
 
 const renderfilm = (film) => {
   document.title = `SWAPI - ${film?.name}`; // Just to make the browser tab say their name
-  filmNameH1.textContent = film?.name;
+  filmNameH1.textContent = film?.title;
   producerSpan.textContent = film?.producer;
   directorSpan.textContent = film?.director;
   releaseSpan.textContent = film?.release_date;
+  detailSpan.textContent = film?.opening_crawl;
 
   const characterList = film?.characters?.map(
     (character) =>
